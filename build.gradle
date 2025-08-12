@@ -1,0 +1,156 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
+plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version "2.0.0"
+    id 'java-library'
+    id 'maven-publish'
+    id "com.vanniktech.maven.publish" version "0.31.0"
+    id "org.jreleaser" version "1.18.0"
+}
+
+group = 'app.multiplayer'
+description = 'Multiplayer Session Recorder Java Library'
+
+if (project.hasProperty('projVersion')) {
+  project.version = project.projVersion
+} else {
+  project.version = '0.0.0'
+}
+
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+jreleaser {
+    release {
+        github {
+	        skipRelease = true
+	        skipTag = true
+            // enabled = true
+        }
+    }
+    project {
+        inceptionYear = "2025"
+        author("Multiplayer")
+    }
+    deploy {
+        maven {
+            mavenCentral.create("sonatype") {
+                active = "ALWAYS"
+                url = "https://central.sonatype.com/api/v1/publisher"
+                stagingRepository(layout.buildDirectory.dir("staging-deploy").get().toString())
+                setAuthorization("Basic")
+                applyMavenCentralRules = false // Wait for fix: https://github.com/kordamp/pomchecker/issues/21
+                sign = true
+                checksums = true
+                sourceJar = true
+                javadocJar = true
+                retryDelay = 60
+            }
+        }
+    }
+    signing {
+        active = "ALWAYS"
+        armored = true
+        verify = true
+    }
+}
+
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+    mavenLocal()
+}
+
+dependencies {
+    implementation 'io.opentelemetry:opentelemetry-api:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-sdk:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-sdk-logs:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-exporter-common:1.35.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+    
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'com.google.guava:guava:10.0'
+    compileOnly 'com.google.auto.value:auto-value-annotations:1.6.2'
+    annotationProcessor 'com.google.auto.value:auto-value:1.6.2'
+    compileOnly 'com.google.code.findbugs:annotations:3.0.1u2'
+    testImplementation 'com.google.code.findbugs:jsr305:3.0.2'
+}
+
+publishing {
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+//     publications {
+//         mavenJava(MavenPublication) {
+//             from components.java
+//             pom {
+//                 name = 'Multiplayer OpenTelemetry Exporter'
+//                 description = 'A custom OpenTelemetry library for exporting logs and traces'
+//                 url = 'https://github.com/multiplayer-app/multiplayer-otlp-java'
+//                 licenses {
+//                     license {
+//                         name = 'MIT License'
+//                         url = './LICENSE'
+//                     }
+//                 }
+//                 developers {
+//                     developer {
+//                         id = 'multiplayer'
+//                         name = 'Multiplayer'
+//                         email = 'hello@multiplayer.app'
+//                     }
+//                 }
+//                 scm {
+//                     connection = 'scm:git:git://github.com:multiplayer-app/multiplayer-otlp-java.git'
+//                     developerConnection = 'scm:git:ssh://github.com:multiplayer-app/multiplayer-otlp-java.git'
+//                     url = 'https://github.com/multiplayer-app/multiplayer-otlp-java'
+//                 }
+//             }
+//         }
+//     }
+}
+
+mavenPublishing {
+    // coordinates("app.multiplayer", "opentelemetry", "0.0.1")
+
+    pom {
+        name = 'Multiplayer Session Recorder Exporter'
+        description = 'Session Recorder library'
+        url = 'https://github.com/multiplayer-app/multiplayer-session-recorder-java'
+        licenses {
+            license {
+                name = 'MIT License'
+                url = './LICENSE'
+            }
+        }
+        developers {
+            developer {
+                id = 'multiplayer'
+                name = 'Multiplayer'
+                email = 'hello@multiplayer.app'
+            }
+        }
+        scm {
+            connection = 'scm:git:git://github.com/multiplayer-app/multiplayer-session-recorder-java.git'
+            developerConnection = 'scm:git:ssh://github.com/multiplayer-app/multiplayer-session-recorder-java.git'
+            url = 'https://github.com/multiplayer-app/multiplayer-session-recorder-java'
+        }
+    }
+
+    // publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    // signAllPublications()
+}
