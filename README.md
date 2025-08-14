@@ -41,6 +41,16 @@ session.addTag("production");
 session.addTag("v1.0.0");
 session.addTag("feature:session-recording");
 
+// Add session attributes
+session.addSessionAttribute("userId", "12345");
+session.addSessionAttribute("environment", "production");
+session.addSessionAttribute("version", "1.0.0");
+
+// Add resource attributes
+session.addResourceAttribute("service.name", "my-service");
+session.addResourceAttribute("service.version", "1.0.0");
+session.addResourceAttribute("deployment.environment", "production");
+
 SessionRecorder.start(SessionType.PLAIN, session);
 ```
 
@@ -59,11 +69,15 @@ if (!SessionRecorder.isInitialized()) {
 // Start a continuous session
 Session session = new Session();
 session.setName("Continuous Session");
+session.addTag("continuous");
+session.addTag("debug-mode");
+
 SessionRecorder.start(SessionType.CONTINUOUS, session)
     .thenRun(() -> {
         // Save data to continuous session
         Session sessionData = new Session();
         sessionData.setName("Updated Data");
+        sessionData.addTag("saved");
         SessionRecorder.save(sessionData);
     });
 

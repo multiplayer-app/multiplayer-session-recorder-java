@@ -3,14 +3,15 @@ package app.multiplayer.session_recorder.type;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Session {
     private String id;
     private String shortId;
     private String name;
 
-    private Map<String, Object> resourceAttributes;
-    private Map<String, Object> sessionAttributes;
+    private Map<String, Object> resourceAttributes = new HashMap<>();
+    private Map<String, Object> sessionAttributes = new HashMap<>();
 
     private List<String> tags = new ArrayList<>();
 
@@ -70,6 +71,42 @@ public class Session {
      */
     public void addTag(String tag) {
         this.tags.add(tag);
+    }
+
+    /**
+     * Add a session attribute
+     * @param key the attribute key
+     * @param value the attribute value
+     */
+    public void addSessionAttribute(String key, Object value) {
+        this.sessionAttributes.put(key, value);
+    }
+
+    /**
+     * Get a session attribute
+     * @param key the attribute key
+     * @return the attribute value
+     */
+    public Object getSessionAttribute(String key) {
+        return this.sessionAttributes.get(key);
+    }
+
+    /**
+     * Add a resource attribute
+     * @param key the attribute key
+     * @param value the attribute value
+     */
+    public void addResourceAttribute(String key, Object value) {
+        this.resourceAttributes.put(key, value);
+    }
+
+    /**
+     * Get a resource attribute
+     * @param key the attribute key
+     * @return the attribute value
+     */
+    public Object getResourceAttribute(String key) {
+        return this.resourceAttributes.get(key);
     }
 
 
