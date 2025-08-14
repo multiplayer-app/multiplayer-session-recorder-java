@@ -42,9 +42,9 @@ public class Main {
             session.addSessionAttribute("feature", "session-recording");
             
             // Add tags
-            // session.addTag("environment", "production");
-            // session.addTag("version", "v1.0.0");
-            // session.addTag("feature", "session-recording");
+            session.addTag("environment", "production");
+            session.addTag("version", "v1.0.0");
+            session.addTag("feature", "session-recording");
             session.setName("Multiplayer Time Travel CLI Session");
             
             System.out.println("📡 Starting session recording...");
