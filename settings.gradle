@@ -15,4 +15,4 @@ plugins {
 }
 
 
-rootProject.name = "session_recorder"
+rootProject.name = "session-recorder"

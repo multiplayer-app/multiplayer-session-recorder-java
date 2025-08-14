@@ -124,7 +124,7 @@ publishing {
 }
 
 mavenPublishing {
-    // coordinates("app.multiplayer.session_recorder", "session_recorder", "0.0.1")
+    // coordinates("app.multiplayer.session_recorder", "session-recorder", "0.0.1")
 
     pom {
         name = 'Multiplayer Session Recorder Exporter'
