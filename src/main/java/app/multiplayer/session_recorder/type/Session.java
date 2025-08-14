@@ -64,6 +64,23 @@ public class Session {
         this.tags = tags;
     }
 
+    /**
+     * Add a tag to the session
+     * @param key the tag key
+     * @param value the tag value
+     */
+    public void addTag(String key, String value) {
+        this.tags.add(new Tag(key, value));
+    }
+
+    /**
+     * Add a tag to the session
+     * @param tag the tag to add
+     */
+    public void addTag(Tag tag) {
+        this.tags.add(tag);
+    }
+
     // --- Inner class for Tag ---
 
     public static class Tag {

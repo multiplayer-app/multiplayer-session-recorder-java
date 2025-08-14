@@ -35,6 +35,11 @@ SessionRecorder.init(config);
 // Use it with static methods
 Session session = new Session();
 session.setName("My Session");
+
+// Add tags if needed
+session.addTag("environment", "production");
+session.addTag("version", "1.0.0");
+
 SessionRecorder.start(SessionType.PLAIN, session);
 ```
 
