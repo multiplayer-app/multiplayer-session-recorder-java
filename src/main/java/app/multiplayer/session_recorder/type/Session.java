@@ -2,6 +2,7 @@ package app.multiplayer.session_recorder.type;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class Session {
     private String id;
@@ -11,7 +12,7 @@ public class Session {
     private Map<String, Object> resourceAttributes;
     private Map<String, Object> sessionAttributes;
 
-    private List<Tag> tags;
+    private List<Tag> tags = new ArrayList<>();
 
     // --- Getters and Setters ---
 
