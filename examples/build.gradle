@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'app.multiplayer.session_recorder'
+version = '0.0.1'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation project(':') // Depend on the main library
+    implementation 'io.opentelemetry:opentelemetry-api:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-sdk:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-sdk-logs:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.35.0'
+    implementation 'io.opentelemetry:opentelemetry-exporter-common:1.35.0'
+}
+
+application {
+    mainClass = 'app.multiplayer.session_recorder.Main'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'app.multiplayer.session_recorder.Main'
+    }
+}
+
+shadowJar {
+    archiveBaseName.set('examples')
+    archiveClassifier.set('')
+    archiveVersion.set('0.0.1')
+    mergeServiceFiles()
+}
+
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}

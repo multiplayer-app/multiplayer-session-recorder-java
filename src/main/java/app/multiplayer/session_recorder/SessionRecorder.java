@@ -226,7 +226,12 @@ public class SessionRecorder {
         if (sessionType != SessionType.PLAIN)
             throw new IllegalStateException("Invalid session type");
 
-        return apiService.stopSession(shortSessionId, sessionData != null ? sessionData : new Session())
+        StopSessionRequest stopRequest = new StopSessionRequest();
+        if (sessionData != null) {
+            stopRequest.setSessionAttributes(sessionData.getSessionAttributes());
+        }
+
+        return apiService.stopSession(shortSessionId, stopRequest)
             .thenRun(() -> {
                 traceIdGenerator.setSessionId("", SessionType.PLAIN);
                 shortSessionId = "";

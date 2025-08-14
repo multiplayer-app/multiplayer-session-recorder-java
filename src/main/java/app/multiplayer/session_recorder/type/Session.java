@@ -16,7 +16,7 @@ public class Session {
     private Map<String, Object> resourceAttributes = new HashMap<>();
     private Map<String, Object> sessionAttributes = new HashMap<>();
 
-    private List<String> tags = new ArrayList<>();
+    private List<Tag> tags = new ArrayList<>();
 
     // --- Getters and Setters ---
 
@@ -60,19 +60,28 @@ public class Session {
         this.sessionAttributes = sessionAttributes;
     }
 
-    public List<String> getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
 
     /**
      * Add a tag to the session
-     * @param tag the tag string to add
+     * @param key the tag key
+     * @param value the tag value
      */
-    public void addTag(String tag) {
+    public void addTag(String key, String value) {
+        this.tags.add(new Tag(key, value));
+    }
+
+    /**
+     * Add a tag to the session
+     * @param tag the tag object to add
+     */
+    public void addTag(Tag tag) {
         this.tags.add(tag);
     }
 
@@ -112,5 +121,33 @@ public class Session {
         return this.resourceAttributes.get(key);
     }
 
+    // --- Inner class for Tag ---
 
+    public static class Tag {
+        private String key;
+        private String value;
+
+        public Tag() {}
+
+        public Tag(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
 }

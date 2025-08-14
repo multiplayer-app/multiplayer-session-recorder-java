@@ -37,9 +37,9 @@ Session session = new Session();
 session.setName("My Session");
 
 // Add tags if needed
-session.addTag("production");
-session.addTag("v1.0.0");
-session.addTag("feature:session-recording");
+session.addTag("environment", "production");
+session.addTag("version", "v1.0.0");
+session.addTag("feature", "session-recording");
 
 // Add session attributes
 session.addSessionAttribute("userId", "12345");
@@ -69,15 +69,15 @@ if (!SessionRecorder.isInitialized()) {
 // Start a continuous session
 Session session = new Session();
 session.setName("Continuous Session");
-session.addTag("continuous");
-session.addTag("debug-mode");
+session.addTag("mode", "continuous");
+session.addTag("type", "debug");
 
 SessionRecorder.start(SessionType.CONTINUOUS, session)
     .thenRun(() -> {
         // Save data to continuous session
         Session sessionData = new Session();
         sessionData.setName("Updated Data");
-        sessionData.addTag("saved");
+        sessionData.addTag("status", "saved");
         SessionRecorder.save(sessionData);
     });
 
@@ -87,4 +87,25 @@ SessionRecorder.stop(session);
 // Cancel a session
 SessionRecorder.cancel();
 ```
+
+## Examples
+
+See the `examples/` directory for comprehensive examples demonstrating:
+
+- Basic session recording
+- Continuous sessions
+- Error handling
+- Async operations
+
+To run the examples:
+
+```bash
+# Build the main library first
+./gradlew build
+
+# Run the examples
+./gradlew :examples:run
+```
+
+**Note:** The examples are for documentation purposes and are not included in the published library JAR.
 

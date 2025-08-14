@@ -21,7 +21,8 @@ public class ApiService {
         .connectTimeout(Duration.ofSeconds(10))
         .build();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+        .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     private String getBaseApiUrl() {
         return this.config.getExporterApiBaseUrl() != null
@@ -39,11 +40,20 @@ public class ApiService {
 
     // Async startSession
     public CompletableFuture<Session> startSession(Session requestBody) {
-        return makeRequestAsync("/debug-sessions/start", "POST", requestBody, Session.class);
+        return makeRequestAsync("/debug-sessions/start", "POST", requestBody, SessionResponse.class)
+            .thenApply(response -> {
+                Session session = new Session();
+                session.setShortId(response.getShortId());
+                session.setName(response.getName());
+                session.setResourceAttributes(response.getResourceAttributes());
+                session.setSessionAttributes(response.getSessionAttributes());
+                session.setTags(response.getTags());
+                return session;
+            });
     }
 
     // Async stopSession
-    public CompletableFuture<Void> stopSession(String sessionId, Session requestBody) {
+    public CompletableFuture<Void> stopSession(String sessionId, StopSessionRequest requestBody) {
         return makeRequestAsync("/debug-sessions/" + sessionId + "/stop", "PATCH", requestBody, Void.class);
     }
 

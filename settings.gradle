@@ -16,3 +16,6 @@ plugins {
 
 
 rootProject.name = "session_recorder"
+
+include ':examples'
+project(':examples').projectDir = file('examples')
