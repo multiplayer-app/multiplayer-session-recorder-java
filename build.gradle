@@ -93,34 +93,34 @@ publishing {
             url = layout.buildDirectory.dir('staging-deploy')
         }
     }
-//     publications {
-//         mavenJava(MavenPublication) {
-//             from components.java
-//             pom {
-//                 name = 'Multiplayer OpenTelemetry Exporter'
-//                 description = 'A custom OpenTelemetry library for exporting logs and traces'
-//                 url = 'https://github.com/multiplayer-app/multiplayer-otlp-java'
-//                 licenses {
-//                     license {
-//                         name = 'MIT License'
-//                         url = './LICENSE'
-//                     }
-//                 }
-//                 developers {
-//                     developer {
-//                         id = 'multiplayer'
-//                         name = 'Multiplayer'
-//                         email = 'hello@multiplayer.app'
-//                     }
-//                 }
-//                 scm {
-//                     connection = 'scm:git:git://github.com:multiplayer-app/multiplayer-otlp-java.git'
-//                     developerConnection = 'scm:git:ssh://github.com:multiplayer-app/multiplayer-otlp-java.git'
-//                     url = 'https://github.com/multiplayer-app/multiplayer-otlp-java'
-//                 }
-//             }
-//         }
-//     }
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Multiplayer Session Recorder'
+                description = 'Session Recorder library'
+                url = 'https://github.com/multiplayer-app/multiplayer-session-recorder-java'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = './LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'multiplayer'
+                        name = 'Multiplayer'
+                        email = 'hello@multiplayer.app'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/multiplayer-app/multiplayer-session-recorder-java.git'
+                    developerConnection = 'scm:git:ssh://github.com/multiplayer-app/multiplayer-session-recorder-java.git'
+                    url = 'https://github.com/multiplayer-app/multiplayer-session-recorder-java'
+                }
+            }
+        }
+    }
 }
 
 mavenPublishing {

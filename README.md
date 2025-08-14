@@ -11,3 +11,60 @@ To install the `app.multiplayer:session_recorder` module, add it to your gradle 
 implementation 'app.multiplayer:session_recorder:1.0.0'
 ```
 
+## Usage
+
+The SessionRecorder provides a static API for easy access throughout your application.
+
+### Basic Usage
+
+```java
+import app.multiplayer.session_recorder.SessionRecorder;
+import app.multiplayer.session_recorder.type.SessionRecorderConfig;
+import app.multiplayer.session_recorder.type.Session;
+import app.multiplayer.session_recorder.type.SessionType;
+import app.multiplayer.session_recorder.trace.SessionRecorderRandomIdGenerator;
+
+// Configure and initialize
+SessionRecorderConfig config = new SessionRecorderConfig();
+config.setApiKey("your-api-key-here");
+config.setTraceIdGenerator(new SessionRecorderRandomIdGenerator());
+
+// Initialize the SessionRecorder
+SessionRecorder.init(config);
+
+// Use it with static methods
+Session session = new Session();
+session.setName("My Session");
+SessionRecorder.start(SessionType.PLAIN, session);
+```
+
+### Advanced Usage
+
+```java
+// Check if already initialized
+if (!SessionRecorder.isInitialized()) {
+    // Initialize if needed
+    SessionRecorderConfig config = new SessionRecorderConfig();
+    config.setApiKey("your-api-key-here");
+    config.setTraceIdGenerator(new SessionRecorderRandomIdGenerator());
+    SessionRecorder.init(config);
+}
+
+// Start a continuous session
+Session session = new Session();
+session.setName("Continuous Session");
+SessionRecorder.start(SessionType.CONTINUOUS, session)
+    .thenRun(() -> {
+        // Save data to continuous session
+        Session sessionData = new Session();
+        sessionData.setName("Updated Data");
+        SessionRecorder.save(sessionData);
+    });
+
+// Stop a session
+SessionRecorder.stop(session);
+
+// Cancel a session
+SessionRecorder.cancel();
+```
+

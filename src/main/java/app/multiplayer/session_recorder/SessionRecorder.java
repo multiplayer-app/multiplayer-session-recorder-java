@@ -15,6 +15,10 @@ import static app.multiplayer.session_recorder.internal.SessionRecorderConstants
 
 public class SessionRecorder {
 
+    // Singleton instance
+    private static volatile SessionRecorder instance;
+    private static final Object lock = new Object();
+
     private boolean isInitialized = false;
     private String shortSessionId = "";
 
@@ -25,7 +29,40 @@ public class SessionRecorder {
 
     private Map<String, Object> resourceAttributes = new HashMap<>();
 
-    public void init(SessionRecorderConfig config) {
+    // Private constructor to prevent instantiation
+    private SessionRecorder() {}
+
+    /**
+     * Initialize the SessionRecorder singleton with the given configuration
+     * @param config the configuration for the SessionRecorder
+     */
+    public static void init(SessionRecorderConfig config) {
+        synchronized (lock) {
+            if (instance == null) {
+                instance = new SessionRecorder();
+            }
+            instance._initialize(config);
+        }
+    }
+
+    /**
+     * Check if the SessionRecorder is initialized
+     * @return true if initialized, false otherwise
+     */
+    public static boolean isInitialized() {
+        return instance != null && instance.isInitialized;
+    }
+
+    /**
+     * Reset the singleton instance (useful for testing or re-initialization)
+     */
+    public static void reset() {
+        synchronized (lock) {
+            instance = null;
+        }
+    }
+
+    private void _initialize(SessionRecorderConfig config) {
         this.resourceAttributes = config.getResourceAttributes() != null
             ? config.getResourceAttributes()
             : Map.of(ATTR_MULTIPLAYER_SESSION_RECORDER_VERSION, SESSION_RECORDER_VERSION);
@@ -47,7 +84,20 @@ public class SessionRecorder {
         this.apiService.init(apiServiceConfig);
     }
 
-    public CompletableFuture<Void> start(SessionType type, Session sessionPayload) {
+    /**
+     * Start a session
+     * @param type the session type
+     * @param sessionPayload the session payload
+     * @return CompletableFuture that completes when the session starts
+     */
+    public static CompletableFuture<Void> start(SessionType type, Session sessionPayload) {
+        if (instance == null || !instance.isInitialized) {
+            throw new IllegalStateException("SessionRecorder is not initialized. Call init() first.");
+        }
+        return instance._start(type, sessionPayload);
+    }
+
+    private CompletableFuture<Void> _start(SessionType type, Session sessionPayload) {
         if (!isInitialized)
             throw new IllegalStateException("Call init() before performing any actions.");
 
@@ -98,7 +148,54 @@ public class SessionRecorder {
         SaveContinuousSession.saveContinuousSession(reason);
     }
 
-    public CompletableFuture<Void> save(Session sessionData) {
+    /**
+     * Save session data
+     * @param sessionData the session data to save
+     * @return CompletableFuture that completes when the data is saved
+     */
+    public static CompletableFuture<Void> save(Session sessionData) {
+        if (instance == null || !instance.isInitialized) {
+            throw new IllegalStateException("SessionRecorder is not initialized. Call init() first.");
+        }
+        return instance._save(sessionData);
+    }
+
+    /**
+     * Stop a session
+     * @param sessionData the session data
+     * @return CompletableFuture that completes when the session stops
+     */
+    public static CompletableFuture<Void> stop(Session sessionData) {
+        if (instance == null || !instance.isInitialized) {
+            throw new IllegalStateException("SessionRecorder is not initialized. Call init() first.");
+        }
+        return instance._stop(sessionData);
+    }
+
+    /**
+     * Cancel a session
+     * @return CompletableFuture that completes when the session is cancelled
+     */
+    public static CompletableFuture<Void> cancel() {
+        if (instance == null || !instance.isInitialized) {
+            throw new IllegalStateException("SessionRecorder is not initialized. Call init() first.");
+        }
+        return instance._cancel();
+    }
+
+    /**
+     * Check remote continuous session
+     * @param sessionPayload the session payload
+     * @return CompletableFuture that completes when the check is done
+     */
+    public static CompletableFuture<Void> checkRemoteContinuousSession(Session sessionPayload) {
+        if (instance == null || !instance.isInitialized) {
+            throw new IllegalStateException("SessionRecorder is not initialized. Call init() first.");
+        }
+        return instance._checkRemoteContinuousSession(sessionPayload);
+    }
+
+    private CompletableFuture<Void> _save(Session sessionData) {
         if (!isInitialized)
             throw new IllegalStateException("Call init() before performing any actions.");
 
@@ -119,7 +216,7 @@ public class SessionRecorder {
         return apiService.saveContinuousSession(this.shortSessionId, sessionData);
     }
 
-    public CompletableFuture<Void> stop(Session sessionData) {
+    private CompletableFuture<Void> _stop(Session sessionData) {
         if (!isInitialized)
             throw new IllegalStateException("Call init() before performing any actions.");
 
@@ -137,7 +234,7 @@ public class SessionRecorder {
             });
     }
 
-    public CompletableFuture<Void> cancel() {
+    private CompletableFuture<Void> _cancel() {
         if (!isInitialized)
             throw new IllegalStateException("Call init() before performing any actions.");
 
@@ -158,7 +255,7 @@ public class SessionRecorder {
         });
     }
 
-    public CompletableFuture<Void> checkRemoteContinuousSession(Session sessionPayload) {
+    private CompletableFuture<Void> _checkRemoteContinuousSession(Session sessionPayload) {
         if (!isInitialized)
             throw new IllegalStateException("Call init() before performing any actions.");
 
