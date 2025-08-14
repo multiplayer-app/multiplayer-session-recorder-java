@@ -37,8 +37,9 @@ Session session = new Session();
 session.setName("My Session");
 
 // Add tags if needed
-session.addTag("environment", "production");
-session.addTag("version", "1.0.0");
+session.addTag("production");
+session.addTag("v1.0.0");
+session.addTag("feature:session-recording");
 
 SessionRecorder.start(SessionType.PLAIN, session);
 ```

@@ -12,7 +12,7 @@ public class Session {
     private Map<String, Object> resourceAttributes;
     private Map<String, Object> sessionAttributes;
 
-    private List<Tag> tags = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
 
     // --- Getters and Setters ---
 
@@ -56,58 +56,21 @@ public class Session {
         this.sessionAttributes = sessionAttributes;
     }
 
-    public List<Tag> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
     /**
      * Add a tag to the session
-     * @param key the tag key
-     * @param value the tag value
+     * @param tag the tag string to add
      */
-    public void addTag(String key, String value) {
-        this.tags.add(new Tag(key, value));
-    }
-
-    /**
-     * Add a tag to the session
-     * @param tag the tag to add
-     */
-    public void addTag(Tag tag) {
+    public void addTag(String tag) {
         this.tags.add(tag);
     }
 
-    // --- Inner class for Tag ---
 
-    public static class Tag {
-        private String key;
-        private String value;
-
-        public Tag() {}
-
-        public Tag(String key, String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
 }
