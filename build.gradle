@@ -8,13 +8,13 @@ plugins {
     id "org.jreleaser" version "1.18.0"
 }
 
-group = 'app.multiplayer.session_recorder'
+group = 'app.multiplayer'
 description = 'Multiplayer Session Recorder Java Library'
 
 if (project.hasProperty('projVersion')) {
   project.version = project.projVersion
 } else {
-  project.version = '0.0.0'
+  project.version = '0.0.1'
 }
 
 if (hasProperty('buildScan')) {
@@ -124,7 +124,7 @@ publishing {
 }
 
 mavenPublishing {
-    // coordinates("app.multiplayer.session_recorder", "session-recorder", "0.0.1")
+    // coordinates("app.multiplayer", "session_recorder", "0.0.1")
 
     pom {
         name = 'Multiplayer Session Recorder Exporter'
