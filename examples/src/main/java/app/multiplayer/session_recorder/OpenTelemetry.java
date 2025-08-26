@@ -16,14 +16,9 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.resources.Resource;
-// import io.opentelemetry.semconv.ResourceAttributes;
-// import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
-
-// otlp default exporters
 import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
 import io.opentelemetry.exporter.otlp.http.logs.OtlpHttpLogRecordExporter;
 
-// mp exporters
 import app.multiplayer.session_recorder.trace.SessionRecorderRandomIdGenerator;
 import app.multiplayer.session_recorder.trace.samplers.SessionRecorderTraceIdRatioBasedSampler;
 
