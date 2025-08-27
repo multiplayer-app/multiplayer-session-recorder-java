@@ -40,11 +40,7 @@ To install the `app.multiplayer:session_recorder` module, add it to your gradle 
 implementation 'app.multiplayer:session_recorder:1.0.0'
 ```
 
-## Usage
-
-The SessionRecorder provides a static API for easy access throughout your application.
-
-### Basic Usage
+## Set up Session Recorder client
 
 ```java
 import app.multiplayer.session_recorder.SessionRecorder;
@@ -55,7 +51,7 @@ import app.multiplayer.session_recorder.trace.SessionRecorderRandomIdGenerator;
 
 // Configure and initialize
 SessionRecorderConfig config = new SessionRecorderConfig();
-config.setApiKey("your-api-key-here");
+config.setApiKey("{{YOUR_API_KEY}}");
 config.setTraceIdGenerator(new SessionRecorderRandomIdGenerator());
 
 // Initialize the SessionRecorder
@@ -83,57 +79,89 @@ session.addResourceAttribute("deployment.environment", "production");
 SessionRecorder.start(SessionType.PLAIN, session);
 ```
 
-### Advanced Usage
+## Session Recorder trace Id generator
 
 ```java
-// Check if already initialized
-if (!SessionRecorder.isInitialized()) {
-    // Initialize if needed
-    SessionRecorderConfig config = new SessionRecorderConfig();
-    config.setApiKey("your-api-key-here");
-    config.setTraceIdGenerator(new SessionRecorderRandomIdGenerator());
-    SessionRecorder.init(config);
-}
+import app.multiplayer.session_recorder.trace.SessionRecorderRandomIdGenerator;
 
-// Start a continuous session
-Session session = new Session();
-session.setName("Continuous Session");
-session.addTag("mode", "continuous");
-session.addTag("type", "debug");
-
-SessionRecorder.start(SessionType.CONTINUOUS, session)
-    .thenRun(() -> {
-        // Save data to continuous session
-        Session sessionData = new Session();
-        sessionData.setName("Updated Data");
-        sessionData.addTag("status", "saved");
-        SessionRecorder.save(sessionData);
-    });
-
-// Stop a session
-SessionRecorder.stop(session);
-
-// Cancel a session
-SessionRecorder.cancel();
+idGenerator = new SessionRecorderRandomIdGenerator();
 ```
 
-## Examples
+## Session Recorder trace id ratio based sampler
 
-See the `examples/` directory for comprehensive examples demonstrating:
 
-- Basic session recording
-- Continuous sessions
-- Error handling
-- Async operations
+```java
+import io.opentelemetry.sdk.trace.samplers.Sampler;
+import app.multiplayer.session_recorder.trace.samplers.SessionRecorderTraceIdRatioBasedSampler;
 
-To run the examples:
-
-```bash
-# Build the main library first
-./gradlew build
-
-# Run the examples
-./gradlew :examples:run
+Sampler sampler = SessionRecorderTraceIdRatioBasedSampler.create(0.5);
 ```
 
-**Note:** The examples are for documentation purposes and are not included in the published library JAR.
+## Setup backend
+
+### Setup opentelemetry data
+
+Use officials opentelemetry guidence from [here](https://opentelemetry.io/docs/languages/java) or [zero-code](https://opentelemetry.io/docs/zero-code/java) approach
+
+### Send opentelemetry data to Multiplayer
+
+Opentelemetry data can be sent to Multiplayer's collector in few ways:
+
+### Option 1 (Direct Exporter):
+
+```java
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
+
+SpanExporter spanExporter = OtlpHttpSpanExporter.builder()
+  .setEndpoint("https://otlp.multiplayer.app/v1/traces")
+  .addHeader("Authorization", "{{MULTIPLAYER_OTLP_KEY}}")
+  .build();
+```
+
+or
+
+```java
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import app.multiplayer.session_recorder.exporter.SessionRecorderOtlpHttpSpanExporter;
+
+SpanExporter spanExporter = new SessionRecorderOtlpHttpSpanExporter(
+  "{{MULTIPLAYER_OTLP_KEY}}",
+  "https://otlp.multiplayer.app/v1/traces"
+);
+```
+
+### Option 2 (Collector):
+
+Another option - send otlp data to [opentelemetry collector](https://github.com/multiplayer-app/multiplayer-otlp-collector).
+
+Use following examples to send data to collector
+```java
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
+
+SpanExporter spanExporter = OtlpHttpSpanExporter.builder()
+  .setEndpoint("http://{{OTLP_COLLECTOR_URL}}/v1/traces")
+  .addHeader("Authorization", "{{MULTIPLAYER_OTLP_KEY}}")
+  .build();
+```
+
+or
+
+```java
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import app.multiplayer.session_recorder.exporter.SessionRecorderOtlpHttpSpanExporter;
+
+SpanExporter spanExporter = new SessionRecorderOtlpHttpSpanExporter(
+  "{{MULTIPLAYER_OTLP_KEY}}",
+  "http://{{OTLP_COLLECTOR_URL}}/v1/traces"
+);
+```
+
+### Add request/response payloads
+
+Deploy [Envoy Proxy](https://github.com/multiplayer-app/multiplayer-proxy) in front of your backend service.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
