@@ -1,4 +1,4 @@
-![Description](.github/header-java.png)
+![Description](./docs/img/header-java.png)
 
 <div align="center">
 <a href="https://github.com/multiplayer-app/multiplayer-session-recorder-java">
@@ -26,23 +26,118 @@
   </p>
 </div>
 
-# Multiplayer Session Recorder - OpenTelemetry Java
+# Multiplayer Full Stack Session Recorder
 
-## Introduction
+The Multiplayer Full Stack Session Recorder is a powerful tool that offers deep session replays with insights spanning frontend screens, platform traces, metrics, and logs. It helps your team pinpoint and resolve bugs faster by providing a complete picture of your backend system architecture. No more wasted hours combing through APM data; the Multiplayer Full Stack Session Recorder does it all in one place.
 
-The multiplayer-session-recorder module integrates OpenTelemetry with the Multiplayer platform to enable seamless trace collection and analysis. This library helps developers monitor, debug, and document application performance with detailed trace data. It supports flexible trace ID generation, sampling strategies.
+## Install
 
-## Installation
-
-To install the `app.multiplayer:session_recorder` module, add it to your gradle file:
+Add to your gradle file:
 
 ```
 implementation 'app.multiplayer:session_recorder:1.0.0'
 ```
 
-## Set up Session Recorder client
+## Set up backend services
+
+### Route traces and logs to Multiplayer
+
+Multiplayer Full Stack Session Recorder is built on top of OpenTelemetry.
+
+### New to OpenTelemetry?
+
+No problem. You can set it up in a few minutes. If your services don't already use OpenTelemetry, you'll first need to install the OpenTelemetry libraries. Detailed instructions for this can be found in the [OpenTelemetry documentation](https://opentelemetry.io/docs/).
+
+### Already using OpenTelemetry?
+
+You have two primary options for routing your data to Multiplayer:
+
+***Direct Exporter***: This option involves using the Multiplayer Exporter directly within your services. It's a great choice for new applications or startups because it's simple to set up and doesn't require any additional infrastructure. You can configure it to send all session recording data to Multiplayer while optionally sending a sampled subset of data to your existing observability platform.
+
+***OpenTelemetry Collector***: For large, scaled platforms, we recommend using an OpenTelemetry Collector. This approach provides more flexibility by having your services send all telemetry to the collector, which then routes specific session recording data to Multiplayer and other data to your existing observability tools.
+
+
+### Option 1: Direct Exporter
+
+Send OpenTelemetry data from your services to Multiplayer and optionally other destinations (e.g., OpenTelemetry Collectors, observability platforms, etc.).
+
+This is the quickest way to get started, but consider using an OpenTelemetry Collector (see [Option 2](#option-2-opentelemetry-collector) below) if you're scalling or a have a large platform.
 
 ```java
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import io.opentelemetry.sdk.logs.export.LogRecordExporter;
+import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
+import io.opentelemetry.exporter.otlp.http.logs.OtlpHttpLogRecordExporter;
+import app.multiplayer.session_recorder.exporter.SessionRecorderLogsExporterWrapper;
+import app.multiplayer.session_recorder.exporter.SessionRecorderTraceExporterWrapper;
+
+// # set up Multiplayer exporters. Note: GRPC exporters are also available.
+// # see: `SessionRecorderOtlpHttpSpanExporter` and `SessionRecorderOtlpGrpcLogExporter`
+
+
+// Multiplayer exporter wrappers filter out session recording atrtributes before passing to provided exporter
+SpanExporter spanExporter = SessionRecorderTraceExporterWrapper(
+  // add any OTLP trace exporter
+  OtlpHttpSpanExporter.builder()
+    .setEndpoint("...")
+    .build()
+);
+LogRecordExporter logsExporter = SessionRecorderLogsExporterWrapper(
+  // add any OTLP log exporter
+  OtlpHttpLogRecordExporter.builder()
+    .setEndpoint("...")
+    .build()
+);
+```
+
+### Option 2: OpenTelemetry Collector
+
+If you're scalling or a have a large platform, consider running a dedicated collector. See the Multiplayer OpenTelemetry collector [repository](https://github.com/multiplayer-app/multiplayer-otlp-collector) which shows how to configure the standard OpenTelemetry Collector to send data to Multiplayer and optional other destinations.
+
+Add standard [OpenTelemetry code](https://opentelemetry.io/docs/languages/java/configuration/#configurablespanexporterprovider) to export OTLP data to your collector.
+
+See a basic example below:
+
+```java
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import io.opentelemetry.sdk.logs.export.LogRecordExporter;
+import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
+import io.opentelemetry.exporter.otlp.http.logs.OtlpHttpLogRecordExporter;
+
+SpanExporter spanExporter = OtlpHttpSpanExporter.builder()
+    .setEndpoint("http://<OTLP_COLLECTOR_URL>/v1/traces")
+    .build();
+LogRecordExporter logsExporter = OtlpHttpLogRecordExporter.builder()
+    .setEndpoint("http://<OTLP_COLLECTOR_URL>/v1/logs")
+    .build();
+```
+
+### Capturing request/response and header content
+
+In addition to sending traces and logs, you need to capture request and response content. We offer solution for this:
+
+***Multiplayer Proxy:*** Alternatively, you can run a [Multiplayer Proxy](https://github.com/multiplayer-app/multiplayer-proxy) to handle this outside of your services. This is ideal for large-scale applications and supports all languages, including those like Java that don't allow for in-service request/response hooks. The proxy can be deployed in various ways, such as an Ingress Proxy, a Sidecar Proxy, or an Embedded Proxy, to best fit your architecture.
+
+### Multiplayer Proxy
+
+The Multiplayer Proxy enables capturing request/response and header content without changing service code. See instructions at the [Multiplayer Proxy repository](https://github.com/multiplayer-app/multiplayer-proxy).
+
+## Set up CLI app
+
+The Multiplayer Full Stack Session Recorder can be used inside the CLI apps.
+
+The [Multiplayer Time Travel Demo](https://github.com/multiplayer-app/multiplayer-time-travel-platform) includes an example [java CLI app](https://github.com/multiplayer-app/multiplayer-time-travel-platform/tree/main/clients/java-cli-app).
+
+See an additional example below.
+
+### Quick start
+
+Use the following code below to initialize and run the session recorder.
+
+```java
+// IMPORTANT: set up OpenTelemetry
+// for an example see ./examples/src/main/java/app/multiplayer/session_recorder/OpenTelemetry.java
+// NOTE: for the code below to work, copy ./examples/src/main/java/app/multiplayer/session_recorder/OpenTelemetry.java to ./OpenTelemetry.java
 import app.multiplayer.session_recorder.SessionRecorder;
 import app.multiplayer.session_recorder.type.SessionRecorderConfig;
 import app.multiplayer.session_recorder.type.Session;
@@ -51,116 +146,37 @@ import app.multiplayer.session_recorder.trace.SessionRecorderRandomIdGenerator;
 
 // Configure and initialize
 SessionRecorderConfig config = new SessionRecorderConfig();
-config.setApiKey("{{YOUR_API_KEY}}");
-config.setTraceIdGenerator(new SessionRecorderRandomIdGenerator());
+config.setApiKey("MULTIPLAYER_OTLP_KEY"); // note: replace with your Multiplayer OTLP key
+config.setTraceIdGenerator(OpenTelemetry.getIdGenerator());
 
 // Initialize the SessionRecorder
 SessionRecorder.init(config);
 
-// Use it with static methods
+// create session 
 Session session = new Session();
-session.setName("My Session");
+session.setName("This is test session");
 
-// Add tags if needed
 session.addTag("environment", "production");
 session.addTag("version", "v1.0.0");
 session.addTag("feature", "session-recording");
 
-// Add session attributes
 session.addSessionAttribute("userId", "12345");
 session.addSessionAttribute("environment", "production");
 session.addSessionAttribute("version", "1.0.0");
 
-// Add resource attributes
 session.addResourceAttribute("service.name", "my-service");
 session.addResourceAttribute("service.version", "1.0.0");
 session.addResourceAttribute("deployment.environment", "production");
 
 SessionRecorder.start(SessionType.PLAIN, session);
+
+// do something here
+
+Session stopSession = new Session();
+stopSession.addSessionAttribute("status", "completed");
+
+SessionRecorder.stop(stopSession);
 ```
-
-## Session Recorder trace Id generator
-
-```java
-import app.multiplayer.session_recorder.trace.SessionRecorderRandomIdGenerator;
-
-idGenerator = new SessionRecorderRandomIdGenerator();
-```
-
-## Session Recorder trace id ratio based sampler
-
-
-```java
-import io.opentelemetry.sdk.trace.samplers.Sampler;
-import app.multiplayer.session_recorder.trace.samplers.SessionRecorderTraceIdRatioBasedSampler;
-
-Sampler sampler = SessionRecorderTraceIdRatioBasedSampler.create(0.5);
-```
-
-## Setup backend
-
-### Setup opentelemetry data
-
-Use officials opentelemetry guidence from [here](https://opentelemetry.io/docs/languages/java) or [zero-code](https://opentelemetry.io/docs/zero-code/java) approach
-
-### Send opentelemetry data to Multiplayer
-
-Opentelemetry data can be sent to Multiplayer's collector in few ways:
-
-### Option 1 (Direct Exporter):
-
-```java
-import io.opentelemetry.sdk.trace.export.SpanExporter;
-import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
-
-SpanExporter spanExporter = OtlpHttpSpanExporter.builder()
-  .setEndpoint("https://otlp.multiplayer.app/v1/traces")
-  .addHeader("Authorization", "{{MULTIPLAYER_OTLP_KEY}}")
-  .build();
-```
-
-or
-
-```java
-import io.opentelemetry.sdk.trace.export.SpanExporter;
-import app.multiplayer.session_recorder.exporter.SessionRecorderOtlpHttpSpanExporter;
-
-SpanExporter spanExporter = new SessionRecorderOtlpHttpSpanExporter(
-  "{{MULTIPLAYER_OTLP_KEY}}",
-  "https://otlp.multiplayer.app/v1/traces"
-);
-```
-
-### Option 2 (Collector):
-
-Another option - send otlp data to [opentelemetry collector](https://github.com/multiplayer-app/multiplayer-otlp-collector).
-
-Use following examples to send data to collector
-```java
-import io.opentelemetry.sdk.trace.export.SpanExporter;
-import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
-
-SpanExporter spanExporter = OtlpHttpSpanExporter.builder()
-  .setEndpoint("http://{{OTLP_COLLECTOR_URL}}/v1/traces")
-  .addHeader("Authorization", "{{MULTIPLAYER_OTLP_KEY}}")
-  .build();
-```
-
-or
-
-```java
-import io.opentelemetry.sdk.trace.export.SpanExporter;
-import app.multiplayer.session_recorder.exporter.SessionRecorderOtlpHttpSpanExporter;
-
-SpanExporter spanExporter = new SessionRecorderOtlpHttpSpanExporter(
-  "{{MULTIPLAYER_OTLP_KEY}}",
-  "http://{{OTLP_COLLECTOR_URL}}/v1/traces"
-);
-```
-
-### Add request/response payloads
-
-Deploy [Envoy Proxy](https://github.com/multiplayer-app/multiplayer-proxy) in front of your backend service.
 
 ## License
 
