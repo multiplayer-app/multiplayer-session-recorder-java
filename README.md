@@ -134,6 +134,8 @@ See an additional example below.
 
 Use the following code below to initialize and run the session recorder.
 
+Example for Session Recorder initialization relies on [OpenTelemetry.java](./examples/src/main/java/app/multiplayer/session_recorder/OpenTelemetry.java) file. Copy that file and put next to quick start code.
+
 ```java
 // IMPORTANT: set up OpenTelemetry
 // for an example see ./examples/src/main/java/app/multiplayer/session_recorder/OpenTelemetry.java
